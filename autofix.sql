@@ -143,3 +143,61 @@ FROM mecanicos m
 LEFT JOIN ordens_servico os ON m.id = os.mecanico_id AND os.status = 'Concluida'
 GROUP BY m.especialidade
 ORDER BY faturamento_mao_obra DESC;
+
+CREATE VIEW vw_veiculos_clientes AS
+SELECT 
+    v.marca,
+    v.modelo,
+    v.placa,
+    v.ano,
+    c.nome AS proprietario,
+    c.telefone
+FROM veiculos v
+INNER JOIN clientes c ON v.cliente_id = c.id
+ORDER BY v.marca ASC, v.modelo ASC;
+
+SELECT * from
+vw_veiculos_clientes
+
+CREATE VIEW vw_ordens_rafael as
+select
+    os.id AS os_id,
+    v.placa,
+    v.modelo,
+    os.data_abertura,
+    m.nome AS mecanico,
+    os.status
+FROM ordens_servico os
+INNER JOIN veiculos v ON os.veiculo_id = v.id
+INNER JOIN clientes c ON v.cliente_id = c.id
+INNER JOIN mecanicos m ON os.mecanico_id = m.id
+WHERE c.nome = 'Rafael oliveira'
+ORDER BY os.data_abertura DESC;
+
+SELECT * from
+vw_ordens_rafael
+
+Create view vw_mecanico_especialidade AS
+SELECT 
+    nome AS mecanico,
+    especialidade,
+    valor_hora
+FROM mecanicos
+WHERE valor_hora > 90.00
+ORDER BY valor_hora DESC;
+
+SELECT * from
+vw_mecanico_especialidade
+
+create view vw_especialidade_faturamento AS
+SELECT 
+    m.especialidade,
+    COUNT(os.id) AS qtd_servicos_concluidos,
+    COALESCE(SUM(os.valor_mao_obra), 0.00) AS faturamento_mao_obra
+FROM mecanicos m
+LEFT JOIN ordens_servico os ON m.id = os.mecanico_id AND os.status = 'Concluida'
+GROUP BY m.especialidade
+ORDER BY faturamento_mao_obra DESC;
+
+SELECT * from
+vw_especialidade_faturamento
